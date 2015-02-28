@@ -1,3 +1,9 @@
+#!/usr/bin/python
+__author__ = "Matan Lachmish and Asaf Rokach"
+__copyright__ = "Copyright 2015, TAU Matterhorn project"
+__version__ = "1.2"
+__status__ = "Development"
+
 import json
 import sys
 import os
@@ -18,18 +24,40 @@ def main(argv):
         print "Usage: %s [movie file]" % argv[0]
         return -1
 
-    print 'Welcome to TAU Matterhorn lecture uploader'
+    print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+    print '~~~ Welcome to TAU Matterhorn lecture uploader ~~~'
+    print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+    print ''
 
-    confData = json.loads(open(CONST_CONF_FILE).read())
-    matterhornUser = confData["USER"]
-    matterhornPassword = confData["PASSWORD"]
-    matterhornURL = confData["MATTERHORNURL"]
+    print 'Loading "uploader.conf" configuration',
+    try:
+        confData = json.loads(open(CONST_CONF_FILE).read())
+        matterhornUser = confData["USER"]
+        matterhornPassword = confData["PASSWORD"]
+        matterhornURL = confData["MATTERHORNURL"]
+    except IOError:
+        print 'Cannot find "uploader.conf" file'
+        return -1
+    except KeyError:
+        print '"uploader.conf" file have invalid structure'
+        return -1
+    printDone()
 
-    movieFile = argv[1];
-    movie = open(movieFile, 'rb')
+
+    print 'Preparing video file',
+    try:
+        movieFile = argv[1];
+        movie = open(movieFile, 'rb')
+    except IOError:
+        print 'Cannot open ' + movieFile
+        return -1
+    printDone()
+
+    #session object
+    session = requests.session()
 
     #Check credentials
-    session = requests.session()
+    print "Logging in Matterhorn server",
     login_data = dict(j_username=matterhornUser, j_password=matterhornPassword, submit="Login")
     session.post(matterhornURL + '/j_spring_security_check', data=login_data)
     response = session.get(matterhornURL + '/info/me.json')
@@ -37,32 +65,35 @@ def main(argv):
     if "ROLE_ADMIN" not in roles:
         print "You must have admin role in order to upload a file"
         return -1
+    printDone()
 
     lectureTitle = raw_input("Please enter lecture title: ")
 
-    print "Creating a media package"
+    print "Creating a media package",
     response = session.get(matterhornURL + '/ingest/createMediaPackage')
     mediaPackage = response.content
+    printDone()
 
-    print "Add DC Catalog"
+    print "Add DC Catalog",
     params = dict(flavor='dublincore/episode', mediaPackage=mediaPackage,
                   dublinCore=createDublinCore(lectureTitle, movie.name))
     response = session.post(matterhornURL + '/ingest/addDCCatalog', data=params)
     mediaPackage = response.content
+    printDone()
 
-    print "Create new job"
+    print "Creating a new job",
     params = dict(filename=movieFile, filesize='194296984', chunksize='2072576', flavor='presentation/source',
                   mediapackage=mediaPackage)
     response = session.post(matterhornURL + '/upload/newjob', data=params)
     jobID = response.content
+    printDone()
     print "New job was created with id: " + jobID
 
-    print "Upload movie"
     uploaded = 0
     chunkNumber = 0
     movieSize = os.path.getsize(movieFile)
     numberOfChunks = movieSize / CONST_CHUNK_SIZE
-    print 'Uploading ' + str(movieSize) + 'B in ' + str(numberOfChunks) + ' chunks, this may take a while...'
+    print 'Uploading ' + str(movieSize) + ' Bytes in ' + str(numberOfChunks) + ' chunks, this may take a while...'
     while (uploaded < movieSize):
         printProgress(int(chunkNumber / float(numberOfChunks) * 100))
 
@@ -76,7 +107,7 @@ def main(argv):
         uploaded += CONST_CHUNK_SIZE
         chunkNumber += 1
 
-    print "Job status"
+    print "Checking job status:"
     while True:
         response = session.get(matterhornURL + '/upload/job/' + jobID + ".json")
         jsonResponse = json.loads(response.content)
@@ -86,16 +117,19 @@ def main(argv):
             fileUri = jsonResponse["uploadjob"]["payload"]["url"]
             print "File uri is: " + fileUri
             break
+        time.sleep(1) #Wait a sec before next status check
 
-    print "Adding track"
+    print "Adding track",
     params = dict(mediapackage=mediaPackage, trackUri=fileUri, flavor='presentation/source')
     response = session.post(matterhornURL + '/mediapackage/addTrack', data=params)
     mediaPackage = response.content
+    printDone()
 
-    print "Ingest"
+    print "Ingest video",
     params = dict(archiveOp='true', distribution='Matterhorn Media Module', mediaPackage=mediaPackage)
     response = session.post(matterhornURL + '/ingest/ingest/full', data=params)
     workflow = response.content
+    printDone()
     print "A new workflow has been created. Success"
 
 
@@ -109,6 +143,8 @@ def createDublinCore(lectureTitle, fileName):
     dublinCore = '<dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/" xmlns:dcterms="http://purl.org/dc/terms/"><dcterms:title>' + lectureTitle + '</dcterms:title><dcterms:creator></dcterms:creator><dcterms:isPartOf></dcterms:isPartOf><dcterms:license>Creative Commons 3.0: Attribution-NonCommercial-NoDerivs</dcterms:license><dcterms:license></dcterms:license><dcterms:recordDate>' + recordDate + '</dcterms:recordDate><dcterms:contributor></dcterms:contributor><dcterms:subject></dcterms:subject><dcterms:language></dcterms:language><dcterms:description></dcterms:description><dcterms:rights></dcterms:rights><dcterms:created>' + createTime + '</dcterms:created></dublincore>'
     return dublinCore
 
+def printDone():
+    print '... Done'
 
 def printProgress(percentage):
     sys.stdout.write("\r%d%%" % percentage)
