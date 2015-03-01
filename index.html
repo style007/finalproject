@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>TAU Webcast</title>
+        <meta name="description" content="Desc">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="http://video.tau.ac.il/jw-player/css/template.css" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+        <script src="models/Player.js"></script>
+        <script src="models/VideoSegments.js"></script>
+
+        <!-- This is jw player script -->
+        <script src="http://jwpsrv.com/library/n_9PjLIeEeSmgQp+lcGdIw.js"></script>
+
+        <style type="text/css">
+            .clearfix {
+                overflow: auto;
+                zoom: 1;
+            }
+
+            #player { width: 100%; max-width: 1000px; margin: 0 auto; }
+
+            #playerSearch { width: 100%; height: 40px; background: black; }
+            #playerSearch input { width: 100%; }
+            #playerWrap { float: right; width: 70%; height: 500px; background: black; }
+            #quickSegmentsWrap { float: left; width: 30%; height: 500px; overflow: auto; background: gray; }
+            #segmentsWrap { width: 100%; height: 400px; overflow: auto; background: pink; }
+
+            .segment { position: relative; width: 100%; background: blue; height: 80px;color: #fff; }
+            .segment.current { background: green; }
+            .segment .segment-thumb { width: 30%; background: yellow; height: 100%; float: left; }
+            .segment .segment-details { width: 70%; height: 100%; float: left; }
+
+            .playlist_opts { width: 100%; height: 120px; padding: 10px; box-sizing: border-box; overflow: auto; background: azure; }
+            .playlist_opts * {box-sizing: border-box;}
+            .playlist_opts .pl { float: left; width: 80px; height: 80px; margin: 0 8px; background: gray; border-radius: 3px; background-repeat: no-repeat; background-size: contain; }
+        </style>
+    </head>
+    <body>
+        <div id="player">
+            <div id="playerSearch">
+                <input type="text" id="search_query" placeholder="Type anything you wanna search......" />
+            </div>
+            <div id="quickSegmentsWrap"></div>
+            <div id="playerWrap">
+                <div id="jwp_cont"></div>
+            </div>
+            <div class="clearfix"></div>
+            <div id="segmentsWrap">
+            </div>
+        </div>
+        <script type="text/html" id="segment-tpl">
+                <div class="segment-thumb"><img src="<%=model.get('previews').preview.$%>" /></div>
+                <div class="segment-details">
+                    <div class="segment-text"><b>R: <%=model.get('relevance')%></b>: <%=model.get('text')%></div>
+                </div>
+        </script>
+        <script>
+var id = '4440ed09-a7ee-454d-93b4-b0ffa2a2bacd';
+var _player = new player.controller({
+    id: id
+});
+var _playerView = new player.view({
+    model: _player,
+    el: $('#player')
+});
+        </script>
+    </body>
+</html>
