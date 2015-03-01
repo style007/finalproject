@@ -21,9 +21,10 @@ CONST_CHUNK_SIZE = 2072576
 def main(argv):
     # Usage check
     if 2 != len(argv):
-        print "Usage: %s [movie file]" % argv[0]
+        print "Usage: python %s [movie file]" % argv[0]
         return -1
 
+    print ''
     print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
     print '~~~ Welcome to TAU Matterhorn lecture uploader ~~~'
     print '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
