@@ -106,6 +106,7 @@ def main(argv):
         # time.sleep(5)
         uploaded += CONST_CHUNK_SIZE
         chunkNumber += 1
+    print ""
 
     print "Checking job status:"
     while True:
