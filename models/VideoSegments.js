@@ -7,10 +7,14 @@ player.models.VideoSegment = Backbone.Model.extend({
         var $this = this;
         this.listenTo(this, 'remove', function () {
             $this.destroy();
-        })
-        this.viewSmall = new player.views.VideoSegment({model: this});
+        });
+        
         this.viewBig = new player.views.VideoSegment({model: this});
     }
+});
+
+player.views.CurrentVideoSegment = Backbone.View.extend({
+    
 });
 
 player.views.VideoSegment = Backbone.View.extend({
@@ -38,10 +42,12 @@ player.views.VideoSegment = Backbone.View.extend({
         delete this.el; // Delete the variable reference to this node
     },
     render: function () {
+        console.log('render changed');
         var tpl = _.template($('#segment-tpl').text());
         this.$el.html(tpl({model: this.model}));
     },
     renderCurrent: function () {
+        console.log('current changed');
         if (this.model.get('current'))
             this.$el.addClass('current');
         else

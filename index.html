@@ -5,69 +5,107 @@
         <title>TAU Webcast</title>
         <meta name="description" content="Desc">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link href="http://video.tau.ac.il/jw-player/css/template.css" rel="stylesheet">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
         <script src="models/Player.js"></script>
         <script src="models/VideoSegments.js"></script>
-
-        <!-- This is jw player script -->
         <script src="http://jwpsrv.com/library/n_9PjLIeEeSmgQp+lcGdIw.js"></script>
-
-        <style type="text/css">
-            .clearfix {
-                overflow: auto;
-                zoom: 1;
-            }
-
-            #player { width: 100%; max-width: 1000px; margin: 0 auto; }
-
-            #playerSearch { width: 100%; height: 40px; background: black; }
-            #playerSearch input { width: 100%; }
-            #playerWrap { float: right; width: 70%; height: 500px; background: black; }
-            #quickSegmentsWrap { float: left; width: 30%; height: 500px; overflow: auto; background: gray; }
-            #segmentsWrap { width: 100%; height: 400px; overflow: auto; background: pink; }
-
-            .segment { position: relative; width: 100%; background: blue; height: 80px;color: #fff; }
-            .segment.current { background: green; }
-            .segment .segment-thumb { width: 30%; background: yellow; height: 100%; float: left; }
-            .segment .segment-details { width: 70%; height: 100%; float: left; }
-
-            .playlist_opts { width: 100%; height: 120px; padding: 10px; box-sizing: border-box; overflow: auto; background: azure; }
-            .playlist_opts * {box-sizing: border-box;}
-            .playlist_opts .pl { float: left; width: 80px; height: 80px; margin: 0 8px; background: gray; border-radius: 3px; background-repeat: no-repeat; background-size: contain; }
-        </style>
+        <link rel="stylesheet" type="text/css" href="main.css" />
     </head>
     <body>
         <div id="player">
-            <div id="playerSearch">
-                <input type="text" id="search_query" placeholder="Type anything you wanna search......" />
+            <div id="player_head" class="gard-black">
+                <div class="main_title"><div class="movie_date"></div><span class="mtitle">Loading Movie...</span></div>
             </div>
-            <div id="quickSegmentsWrap"></div>
+            <div id="quickSegmentsWrap">
+                <div class="title">Current Segment</div>
+                <div class="cont"></div>
+            </div>
             <div id="playerWrap">
                 <div id="jwp_cont"></div>
             </div>
-            <div class="clearfix"></div>
-            <div id="segmentsWrap">
+            <br class="clear" />
+            <div id="playerSearch">
+                <input type="text" id="search_query" placeholder="Type anything you wanna search......" />
             </div>
+            <div id="segmentsWrap"></div>
         </div>
         <script type="text/html" id="segment-tpl">
-                <div class="segment-thumb"><img src="<%=model.get('previews').preview.$%>" /></div>
-                <div class="segment-details">
-                    <div class="segment-text"><b>R: <%=model.get('relevance')%></b>: <%=model.get('text')%></div>
-                </div>
+            <div class="segment-details">
+                <div class="segment-text"><div class="segment-thumb"><img src="<%=model.get('previews').preview.$%>" /></div><div class="segment-rating"><%=printSegmentRating(model.get('relevance'))%></div><%=model.get('text')%></div>
+            </div>
+            <br class="clear" />
         </script>
         <script>
-var id = '4440ed09-a7ee-454d-93b4-b0ffa2a2bacd';
-var _player = new player.controller({
-    id: id
-});
-var _playerView = new player.view({
-    model: _player,
-    el: $('#player')
-});
+            var QueryString = function () {
+                // This function is anonymous, is executed immediately and 
+                // the return value is assigned to QueryString!
+                var query_string = {};
+                var query = window.location.search.substring(1);
+                var vars = query.split("&");
+                for (var i = 0; i < vars.length; i++) {
+                    var pair = vars[i].split("=");
+                    // If first entry with this name
+                    if (typeof query_string[pair[0]] === "undefined") {
+                        query_string[pair[0]] = pair[1];
+                        // If second entry with this name
+                    } else if (typeof query_string[pair[0]] === "string") {
+                        var arr = [query_string[pair[0]], pair[1]];
+                        query_string[pair[0]] = arr;
+                        // If third or later entry with this name
+                    } else {
+                        query_string[pair[0]].push(pair[1]);
+                    }
+                }
+                return query_string;
+            }();
+
+            var id = '408c4890-2187-4963-bac4-5d5071238792';
+            var _player = null;
+            var _playerView = null;
+            $(function () {
+                if( typeof QueryString.id != 'undefined' )
+                    id = QueryString.id;
+                
+                _player = new player.controller({
+                    id: id
+                });
+                _playerView = new player.view({
+                    model: _player,
+                    el: $('#player')
+                });
+            });
+
+/*
+            console.log(QueryString.id);
+            var id = '10872a85-af51-4178-8b98-967bacb1be1c';
+            id = '408c4890-2187-4963-bac4-5d5071238792';
+            var _player = new player.controller({
+                id: id
+            });
+            var _playerView = new player.view({
+                model: _player,
+                el: $('#player')
+            });*/
+
+            function printSegmentRating(r) {
+                r = parseInt(r);
+                var str = 'Irrelevant';
+
+                if (r > 30)
+                    str = 'Relevant';
+
+                if (r > 50)
+                    str = 'Good';
+
+                if (r > 70)
+                    str = 'Excellent';
+
+                return str;
+            }
+
+
         </script>
     </body>
 </html>

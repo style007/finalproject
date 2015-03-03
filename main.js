@@ -5,10 +5,14 @@ $(function () {
 });
 
 function initPlayer() {
+    //results.mediapackage.media.track.each
+    //if (track.mimetype == 'video/mp4')
+        //url = track.url;
+        //video for info
+        
+        
     player = jwplayer('unique_movie_id').setup({
-        sources: [{
-                'file': 'http://techslides.com/demos/sample-videos/small.mp4'
-            }],
+        sources: [{'file': 'http://techslides.com/demos/sample-videos/small.mp4'}],
         'image': '/events/media/k2/items/cache/5287d60029615676bcf4267b7203b28d_XL.jpg',
         'height': '560',
         'width': '960',
