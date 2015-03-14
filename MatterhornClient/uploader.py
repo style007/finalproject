@@ -22,8 +22,8 @@ CONST_CHUNK_SIZE = 2072576
 
 def main(argv):
     # Usage check
-    if 2 != len(argv):
-        print "Usage: python %s [movie file]" % argv[0]
+    if 3 != len(argv):
+        print "Usage: python %s [movie file] [Joomla! id]" % argv[0]
         return -1
 
     print ''
@@ -76,7 +76,16 @@ def main(argv):
     response = session.get(matterhornURL + '/ingest/createMediaPackage')
     mediaPackage = response.content
     printDone()
-    print "A new media package was created with id: " + xmltodict.parse(mediaPackage)["mediapackage"]["@id"]
+    matterhornId = xmltodict.parse(mediaPackage)["mediapackage"]["@id"]
+    print "A new media package was created with id: " + matterhornId
+
+    moviePath = os.path.dirname(os.path.abspath(movieFile))
+    mapFileName = moviePath + '/' + argv[2] + '.map'
+    print "Creating the Joomla!-Matterhorn map file named " + mapFileName,
+    mapFile = open(mapFileName, 'w+')
+    mapFile.write(matterhornId)
+    mapFile.close()
+    printDone()
 
     print "Add DC Catalog",
     params = dict(flavor='dublincore/episode', mediaPackage=mediaPackage,
