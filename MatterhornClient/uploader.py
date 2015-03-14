@@ -70,7 +70,8 @@ def main(argv):
         return -1
     printDone()
 
-    lectureTitle = raw_input("Please enter lecture title: ")
+    # lectureTitle = raw_input("Please enter lecture title: ")
+    lectureTitle = argv[2]
 
     print "Creating a media package",
     response = session.get(matterhornURL + '/ingest/createMediaPackage')
