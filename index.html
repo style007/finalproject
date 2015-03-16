@@ -38,29 +38,6 @@
             <br class="clear" />
         </script>
         <script>
-            var QueryString = function () {
-                // This function is anonymous, is executed immediately and 
-                // the return value is assigned to QueryString!
-                var query_string = {};
-                var query = window.location.search.substring(1);
-                var vars = query.split("&");
-                for (var i = 0; i < vars.length; i++) {
-                    var pair = vars[i].split("=");
-                    // If first entry with this name
-                    if (typeof query_string[pair[0]] === "undefined") {
-                        query_string[pair[0]] = pair[1];
-                        // If second entry with this name
-                    } else if (typeof query_string[pair[0]] === "string") {
-                        var arr = [query_string[pair[0]], pair[1]];
-                        query_string[pair[0]] = arr;
-                        // If third or later entry with this name
-                    } else {
-                        query_string[pair[0]].push(pair[1]);
-                    }
-                }
-                return query_string;
-            }();
-
             var id = '408c4890-2187-4963-bac4-5d5071238792';
             var _player = null;
             var _playerView = null;
@@ -76,36 +53,6 @@
                     el: $('#player')
                 });
             });
-
-/*
-            console.log(QueryString.id);
-            var id = '10872a85-af51-4178-8b98-967bacb1be1c';
-            id = '408c4890-2187-4963-bac4-5d5071238792';
-            var _player = new player.controller({
-                id: id
-            });
-            var _playerView = new player.view({
-                model: _player,
-                el: $('#player')
-            });*/
-
-            function printSegmentRating(r) {
-                r = parseInt(r);
-                var str = 'Irrelevant';
-
-                if (r > 30)
-                    str = 'Relevant';
-
-                if (r > 50)
-                    str = 'Good';
-
-                if (r > 70)
-                    str = 'Excellent';
-
-                return str;
-            }
-
-
         </script>
     </body>
 </html>

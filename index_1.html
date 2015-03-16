@@ -1,0 +1,17 @@
+jQuery('head').append('<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>      <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>');
+jQuery('head').append('        <script src="https://asaf.cloud.yo/finalproject/models/Player_embed.js"></script>        <script src="https://asaf.cloud.yo/finalproject/models/VideoSegments_embed.js"></script>        <link rel="stylesheet" type="text/css" href="https://asaf.cloud.yo/finalproject/main_embed.css" />');
+jQuery('body').append('        <div id="player">            <div id="playerSearch">                <input type="text" id="search_query" placeholder="Type anything you wanna search......" />            </div>            <div id="segmentsWrap"></div>        </div>        <script type="text/html" id="segment-tpl">            <div class="segment-details">                <div class="segment-text"><div class="segment-thumb"><img src="<%=model.get(\'previews\').preview.$%>" /></div><div class="segment-rating"><%=printSegmentRating(model.get(\'relevance\'))%></div><%=model.get(\'text\')%></div>            </div>            <br class="clear" />        </script>');
+
+
+var id = '408c4890-2187-4963-bac4-5d5071238792';
+            var _player = null;
+            var _playerView = null;
+            $(function () {
+                _player = new player.controller({
+                    id: id
+                });
+                _playerView = new player.view({
+                    model: _player,
+                    el: $('#player')
+                });
+            });

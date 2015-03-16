@@ -44,7 +44,7 @@ player.controller = Backbone.Model.extend({
     },
     loadVideo: function ( ) {
         var $this = this;
-        $.ajax({
+        jQuery.ajax({
             url: this.getUrl(),
             data: {fromat: 'json'},
             dataType: 'jsonp',
@@ -67,7 +67,7 @@ player.controller = Backbone.Model.extend({
         else this.segments.add(this.get('search-results').result.segments.segment);
 
         this.segments.each(function (m) {
-            $('#segmentsWrap').append(m.viewBig.$el);
+            jQuery('#segmentsWrap').append(m.viewBig.$el);
         });
         
     },
@@ -97,13 +97,13 @@ player.view = Backbone.View.extend({
     },
     renderCurrentSegment: function() {
         var cs = this.model.get('currentSegment');
-        $('#quickSegmentsWrap .cont').html('');
+        jQuery('#quickSegmentsWrap .cont').html('');
         if( cs === false ) {
             // Clear the area
             return;
         }
-        var tpl = _.template($('#segment-tpl').text());
-        $('#quickSegmentsWrap  .cont').html( tpl({ model: cs }) );
+        var tpl = _.template(jQuery('#segment-tpl').text());
+        jQuery('#quickSegmentsWrap  .cont').html( tpl({ model: cs }) );
     },
     render: function () {
         var $this = this;
@@ -125,15 +125,20 @@ player.view = Backbone.View.extend({
             $this.model.set('currentTime', obj.position);
         });
         
+        this.player.onTime(function (obj) {
+            $this.model.set('currentTime', obj.position);
+        });
+        
         var dateObj = new Date(sr.result.dcCreated);
-        $('.mtitle', this.$el).text( sr.result.dcTitle );
-        $('.movie_date', this.$el).text( dateObj.toLocaleString() );
+        jQuery('.mtitle', this.$el).text( sr.result.dcTitle );
+        jQuery('.movie_date', this.$el).text( dateObj.toLocaleString() );
     },
     onSearchChange: function() {
-        var input = $('#search_query', this.$el);
+        var input = jQuery('#search_query', this.$el);
         this.model.set('q', input.val());
     }
 });
+
 
 var QueryString = function () {
                 // This function is anonymous, is executed immediately and 

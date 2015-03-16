@@ -8,13 +8,12 @@ player.models.VideoSegment = Backbone.Model.extend({
         this.listenTo(this, 'remove', function () {
             $this.destroy();
         });
-        
+
         this.viewBig = new player.views.VideoSegment({model: this});
     }
 });
 
 player.views.CurrentVideoSegment = Backbone.View.extend({
-    
 });
 
 player.views.VideoSegment = Backbone.View.extend({
@@ -42,12 +41,10 @@ player.views.VideoSegment = Backbone.View.extend({
         delete this.el; // Delete the variable reference to this node
     },
     render: function () {
-        console.log('render changed');
-        var tpl = _.template($('#segment-tpl').text());
+        var tpl = _.template(jQuery('#segment-tpl').text());
         this.$el.html(tpl({model: this.model}));
     },
     renderCurrent: function () {
-        console.log('current changed');
         if (this.model.get('current'))
             this.$el.addClass('current');
         else
@@ -73,17 +70,17 @@ player.collections.VideoSegments = Backbone.Collection.extend({
 });
 
 function printSegmentRating(r) {
-                r = parseInt(r);
-                var str = 'Irrelevant';
+    r = parseInt(r);
+    var str = 'Irrelevant';
 
-                if (r > 30)
-                    str = 'Relevant';
+    if (r > 30)
+        str = 'Relevant';
 
-                if (r > 50)
-                    str = 'Good';
+    if (r > 50)
+        str = 'Good';
 
-                if (r > 70)
-                    str = 'Excellent';
+    if (r > 70)
+        str = 'Excellent';
 
-                return str;
-            }
+    return str;
+}
