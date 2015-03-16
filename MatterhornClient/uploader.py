@@ -1,16 +1,18 @@
 #!/usr/bin/python
+
 __author__ = "Matan Lachmish and Asaf Rokach"
 __copyright__ = "Copyright 2015, TAU Matterhorn project"
 __version__ = "1.2"
 __status__ = "Development"
 
 import json
+import xmltodict
 import sys
 import os
 import datetime
-import threading
 import requests
 import time
+import pytz
 
 #File containing details of matterhorn server
 CONST_CONF_FILE = 'uploader.conf'
@@ -20,8 +22,8 @@ CONST_CHUNK_SIZE = 2072576
 
 def main(argv):
     # Usage check
-    if 2 != len(argv):
-        print "Usage: python %s [movie file]" % argv[0]
+    if 3 != len(argv):
+        print "Usage: python %s [movie file] [Joomla! id]" % argv[0]
         return -1
 
     print ''
@@ -68,11 +70,22 @@ def main(argv):
         return -1
     printDone()
 
-    lectureTitle = raw_input("Please enter lecture title: ")
+    # lectureTitle = raw_input("Please enter lecture title: ")
+    lectureTitle = argv[2]
 
     print "Creating a media package",
     response = session.get(matterhornURL + '/ingest/createMediaPackage')
     mediaPackage = response.content
+    printDone()
+    matterhornId = xmltodict.parse(mediaPackage)["mediapackage"]["@id"]
+    print "A new media package was created with id: " + matterhornId
+
+    moviePath = os.path.dirname(os.path.abspath(movieFile))
+    mapFileName = moviePath + '/' + argv[2] + '.map'
+    print "Creating the Joomla!-Matterhorn map file named " + mapFileName,
+    mapFile = open(mapFileName, 'w+')
+    mapFile.write(matterhornId)
+    mapFile.close()
     printDone()
 
     print "Add DC Catalog",
@@ -88,7 +101,6 @@ def main(argv):
     response = session.post(matterhornURL + '/upload/newjob', data=params)
     jobID = response.content
     printDone()
-    print "New job was created with id: " + jobID
 
     uploaded = 0
     chunkNumber = 0
@@ -102,9 +114,6 @@ def main(argv):
         chunk = movie.read(CONST_CHUNK_SIZE)
         files = {'filedata': ('blob', chunk), 'type': 'application/octet-stream'}
         response = session.post(matterhornURL + '/upload/job/' + jobID, files=files, data=payload)
-        # processThread = threading.Thread(target=session.post, args=(matterhornURL + '/upload/job/' + jobID, files, payload,))
-        # processThread.start()
-        # time.sleep(5)
         uploaded += CONST_CHUNK_SIZE
         chunkNumber += 1
     print ""
@@ -140,7 +149,12 @@ def createDublinCore(lectureTitle, fileName):
     recordDate = datetime.datetime.fromtimestamp(recordTime).strftime('%Y-%m-%d')
 
     ts = time.time()
-    createTime = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%SZ')
+    local = pytz.timezone ("Asia/Jerusalem")
+    curTime=datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%SZ')
+    curTimeSimple = datetime.datetime.strptime (curTime, "%Y-%m-%dT%H:%M:%SZ")
+    local_dt = local.localize(curTimeSimple, is_dst=None)
+    utc_dt = local_dt.astimezone (pytz.utc)
+    createTime = utc_dt.strftime ("%Y-%m-%dT%H:%M:%SZ")
 
     dublinCore = '<dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/" xmlns:dcterms="http://purl.org/dc/terms/"><dcterms:title>' + lectureTitle + '</dcterms:title><dcterms:creator></dcterms:creator><dcterms:isPartOf></dcterms:isPartOf><dcterms:license>Creative Commons 3.0: Attribution-NonCommercial-NoDerivs</dcterms:license><dcterms:license></dcterms:license><dcterms:recordDate>' + recordDate + '</dcterms:recordDate><dcterms:contributor></dcterms:contributor><dcterms:subject></dcterms:subject><dcterms:language></dcterms:language><dcterms:description></dcterms:description><dcterms:rights></dcterms:rights><dcterms:created>' + createTime + '</dcterms:created></dublincore>'
     return dublinCore
