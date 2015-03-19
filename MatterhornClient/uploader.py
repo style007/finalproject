@@ -96,7 +96,8 @@ def main(argv):
     printDone()
 
     print "Creating a new job",
-    params = dict(filename=movieFile, filesize='194296984', chunksize='2072576', flavor='presentation/source',
+    movieSize = os.path.getsize(movieFile)
+    params = dict(filename=movieFile, filesize=movieSize, chunksize=CONST_CHUNK_SIZE, flavor='presentation/source',
                   mediapackage=mediaPackage)
     response = session.post(matterhornURL + '/upload/newjob', data=params)
     jobID = response.content
@@ -104,7 +105,6 @@ def main(argv):
 
     uploaded = 0
     chunkNumber = 0
-    movieSize = os.path.getsize(movieFile)
     numberOfChunks = movieSize / CONST_CHUNK_SIZE
     print 'Uploading ' + str(movieSize) + ' Bytes in ' + str(numberOfChunks) + ' chunks, this may take a while...'
     while (uploaded < movieSize):
