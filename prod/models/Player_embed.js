@@ -114,13 +114,8 @@ player.view = Backbone.View.extend({
                 mp4_file = t.url;
         });
         
-        this.player = jwplayer('jwp_cont').setup({
-            sources: [{'file': mp4_file}],
-            'height': '100%',
-            'width': '100%',
-            'autostart': 'true',
-            'controls': '1'
-        });
+        var player_id = jQuery('.avPlayerBlock').attr('id');
+        this.player = jwplayer(player_id);
         this.player.onTime(function (obj) {
             $this.model.set('currentTime', obj.position);
         });
